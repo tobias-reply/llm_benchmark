@@ -1,0 +1,3 @@
+model_name,total_calls,successful_calls,failed_calls,success_rate,error_rate,throughput,avg_response_time,min_response_time,max_response_time,total_input_tokens,total_output_tokens,total_cost,cost_per_call,errors_timeout,errors_rate_limit,errors_service,errors_auth,errors_validation,errors_exception
+Claude-3-Haiku,3,3,0,100.0,0.0,N/A,10.585,8.563,12.611,143,2263,0.002864,0.000955,0,0,0,0,0,0
+Claude-3-Sonnet,3,3,0,100.0,0.0,N/A,16.91,10.112,22.336,143,2422,0.036759,0.012253,0,0,0,0,0,0

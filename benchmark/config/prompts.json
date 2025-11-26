@@ -1,0 +1,19 @@
+{
+  "prompts": [
+    {
+      "name": "cloud_computing",
+      "description": "Cloud computing benefits analysis",
+      "prompt": "You are a helpful AI assistant. Please provide a comprehensive response to the following question: What are the key benefits of using cloud computing for modern businesses? Include at least 5 specific advantages and explain each one briefly."
+    },
+    {
+      "name": "data_science",
+      "description": "Data science methodology explanation",
+      "prompt": "Explain the key steps in a typical data science project lifecycle. Include data collection, preprocessing, analysis, modeling, and deployment phases. Provide specific examples and best practices for each phase."
+    },
+    {
+      "name": "software_architecture",
+      "description": "Microservices vs monolithic architecture",
+      "prompt": "Compare and contrast microservices architecture with monolithic architecture. Discuss the advantages and disadvantages of each approach, and provide guidance on when to choose one over the other for different types of applications."
+    }
+  ]
+}

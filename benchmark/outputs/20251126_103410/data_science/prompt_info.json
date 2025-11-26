@@ -1,0 +1,5 @@
+{
+  "name": "data_science",
+  "description": "Data science methodology explanation",
+  "prompt": "Explain the key steps in a typical data science project lifecycle. Include data collection, preprocessing, analysis, modeling, and deployment phases. Provide specific examples and best practices for each phase."
+}
