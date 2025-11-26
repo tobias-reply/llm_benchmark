@@ -1,5 +1,4 @@
 import json
-import csv
 import os
 from datetime import datetime
 from typing import Dict, Any, List
@@ -16,22 +15,22 @@ def load_models_config(config_path: str = "config/models.json") -> Dict[str, Any
         raise ValueError(f"Invalid JSON in models configuration: {e}")
 
 
-def load_pricing_data(pricing_path: str = "config/pricing.csv") -> Dict[str, Dict[str, float]]:
+def load_pricing_data(models_config_path: str = "config/models.json") -> Dict[str, Dict[str, float]]:
     try:
+        models_config = load_models_config(models_config_path)
         pricing_data = {}
-        with open(pricing_path, "r") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                model_name = row["model_name"]
-                pricing_data[model_name] = {
-                    "input_cost_per_1k_tokens": float(row["input_cost_per_1k_tokens"]),
-                    "output_cost_per_1k_tokens": float(row["output_cost_per_1k_tokens"])
-                }
+        
+        for model in models_config["models"]:
+            model_name = model["name"]
+            pricing_data[model_name] = {
+                "input_cost_per_1k_tokens": float(model.get("input_cost_per_1k_tokens", 0.0)),
+                "output_cost_per_1k_tokens": float(model.get("output_cost_per_1k_tokens", 0.0))
+            }
         return pricing_data
     except FileNotFoundError:
-        raise FileNotFoundError(f"Pricing data file not found at {pricing_path}")
+        raise FileNotFoundError(f"Models configuration file not found at {models_config_path}")
     except (ValueError, KeyError) as e:
-        raise ValueError(f"Invalid pricing data format: {e}")
+        raise ValueError(f"Invalid models configuration format: {e}")
 
 
 def load_prompts_config(prompts_path: str = "config/prompts.json") -> Dict[str, Any]:

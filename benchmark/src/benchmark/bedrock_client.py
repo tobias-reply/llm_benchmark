@@ -57,11 +57,32 @@ class BedrockClient:
                     "temperature": temperature,
                     "top_p": 0.9
                 }
+            elif "mistral" in model_id:
+                body = {
+                    "messages": [{"role": "user", "content": prompt}],
+                    "max_tokens": max_tokens,
+                    "temperature": temperature,
+                    "top_p": 0.9
+                }
             elif "openai" in model_id:
                 body = {
                     "messages": [{"role": "user", "content": prompt}],
                     "max_tokens": max_tokens,
                     "temperature": temperature
+                }
+            elif "qwen" in model_id:
+                body = {
+                    "messages": [{"role": "user", "content": prompt}],
+                    "max_tokens": max_tokens,
+                    "temperature": temperature,
+                    "top_p": 0.9
+                }
+            elif "cohere" in model_id:
+                body = {
+                    "query": prompt,
+                    "documents": [],
+                    "top_k": 10,
+                    "return_documents": False
                 }
             else:
                 # Default format for other providers
@@ -110,12 +131,29 @@ class BedrockClient:
                     content = content[:-10]
                 input_tokens = response_body.get("prompt_token_count", 0)
                 output_tokens = response_body.get("generation_token_count", 0)
+            elif "mistral" in model_id:
+                choices = response_body.get("choices", [{}])
+                content = choices[0].get("message", {}).get("content", "") if choices else ""
+                usage = response_body.get("usage", {})
+                input_tokens = usage.get("prompt_tokens", 0)
+                output_tokens = usage.get("completion_tokens", 0)
             elif "openai" in model_id:
                 choices = response_body.get("choices", [{}])
                 content = choices[0].get("message", {}).get("content", "") if choices else ""
                 usage = response_body.get("usage", {})
                 input_tokens = usage.get("prompt_tokens", 0)
                 output_tokens = usage.get("completion_tokens", 0)
+            elif "qwen" in model_id:
+                content = response_body.get("output", {}).get("choices", [{}])[0].get("message", {}).get("content", "")
+                usage = response_body.get("usage", {})
+                input_tokens = usage.get("prompt_tokens", 0)
+                output_tokens = usage.get("completion_tokens", 0)
+            elif "cohere" in model_id:
+                # Cohere rerank returns relevance scores, not text generation
+                results = response_body.get("results", [])
+                content = f"Rerank results: {len(results)} documents processed"
+                input_tokens = response_body.get("meta", {}).get("api_version", {}).get("billed_units", {}).get("input_tokens", 0)
+                output_tokens = 0  # Rerank doesn't generate text
             else:
                 # Default parsing
                 content = response_body.get("completion", response_body.get("text", ""))
