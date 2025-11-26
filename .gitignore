@@ -39,6 +39,9 @@ Thumbs.db
 # Logs
 *.log
 
+# Output folders
+outputs/
+
 # Environment variables
 .env
 .env.local
