@@ -30,13 +30,38 @@ class BedrockClient:
                     "temperature": temperature
                 }
             elif "amazon" in model_id:
-                body = {
-                    "inputText": prompt,
-                    "textGenerationConfig": {
-                        "maxTokenCount": max_tokens,
-                        "temperature": temperature,
-                        "topP": 0.9
+                if "nova" in model_id:
+                    # Amazon Nova models use the messages format
+                    body = {
+                        "messages": [{"role": "user", "content": [{"text": prompt}]}],
+                        "inferenceConfig": {
+                            "maxTokens": max_tokens,
+                            "temperature": temperature,
+                            "topP": 0.9
+                        }
                     }
+                else:
+                    # Amazon Titan models use the old format
+                    body = {
+                        "inputText": prompt,
+                        "textGenerationConfig": {
+                            "maxTokenCount": max_tokens,
+                            "temperature": temperature,
+                            "topP": 0.9
+                        }
+                    }
+            elif "meta" in model_id:
+                body = {
+                    "prompt": f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
+                    "max_gen_len": max_tokens,
+                    "temperature": temperature,
+                    "top_p": 0.9
+                }
+            elif "openai" in model_id:
+                body = {
+                    "messages": [{"role": "user", "content": prompt}],
+                    "max_tokens": max_tokens,
+                    "temperature": temperature
                 }
             else:
                 # Default format for other providers
@@ -66,10 +91,31 @@ class BedrockClient:
                 input_tokens = response_body.get("usage", {}).get("input_tokens", 0)
                 output_tokens = response_body.get("usage", {}).get("output_tokens", 0)
             elif "amazon" in model_id:
-                results = response_body.get("results", [{}])
-                content = results[0].get("outputText", "") if results else ""
-                input_tokens = response_body.get("inputTextTokenCount", 0)
-                output_tokens = results[0].get("tokenCount", 0) if results else 0
+                if "nova" in model_id:
+                    # Amazon Nova models use the messages format
+                    content = response_body.get("output", {}).get("message", {}).get("content", [{}])[0].get("text", "")
+                    usage = response_body.get("usage", {})
+                    input_tokens = usage.get("inputTokens", 0)
+                    output_tokens = usage.get("outputTokens", 0)
+                else:
+                    # Amazon Titan models use the old format
+                    results = response_body.get("results", [{}])
+                    content = results[0].get("outputText", "") if results else ""
+                    input_tokens = response_body.get("inputTextTokenCount", 0)
+                    output_tokens = results[0].get("tokenCount", 0) if results else 0
+            elif "meta" in model_id:
+                content = response_body.get("generation", "")
+                # Clean up any trailing special tokens
+                if content.endswith("<|eot_id|>"):
+                    content = content[:-10]
+                input_tokens = response_body.get("prompt_token_count", 0)
+                output_tokens = response_body.get("generation_token_count", 0)
+            elif "openai" in model_id:
+                choices = response_body.get("choices", [{}])
+                content = choices[0].get("message", {}).get("content", "") if choices else ""
+                usage = response_body.get("usage", {})
+                input_tokens = usage.get("prompt_tokens", 0)
+                output_tokens = usage.get("completion_tokens", 0)
             else:
                 # Default parsing
                 content = response_body.get("completion", response_body.get("text", ""))
