@@ -1,0 +1,31 @@
+{
+  "models": [
+    {
+      "name": "Amazon-Titan-Text-G1-Large"
+    },
+    {
+      "name": "Amazon-Titan-Text-G1-Express"
+    },
+    {
+      "name": "Amazon-Nova-Pro"
+    },
+    {
+      "name": "Amazon-Nova-Lite"
+    },
+    {
+      "name": "Amazon-Nova-Micro"
+    },
+    {
+      "name": "Claude-4.5-Opus"
+    },
+    {
+      "name": "Llama-3.2-1B-Instruct"
+    },
+    {
+      "name": "Llama-3.2-3B-Instruct"
+    },
+    {
+      "name": "Mistral-Pixtral-Large"
+    }
+  ]
+}

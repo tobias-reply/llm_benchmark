@@ -1,9 +1,8 @@
 {
   "prompts": [
     {
-      "name": "soccer_analysis",
-      "description": "Soccer Analysis",
-      "prompt": "You are a helpful AI assistant. Please answer in one sentence who the most successful soccer team in the world is."
+      "name": "grouping_risk",
+      "description": "Risk Findings Grouping"
     }
   ]
 }

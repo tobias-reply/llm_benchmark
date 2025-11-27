@@ -1,0 +1,206 @@
+TASK: Group related risk findings that refer to the same underlying incident.
+GUIDELINES:
+1. Findings refer to SAME INCIDENT if they share:
+   - Same company + same incident type + similar timeframe
+   - Same root cause + same impact type + same affected scope
+   
+2. For each incident group:
+   - Select PRIMARY source (most credible/complete information)
+   - List SUPPORTING sources (additional coverage of same incident)
+   - Create consolidated incident description
+   
+3. Only group findings with HIGH confidence (>0.8)
+4. When uncertain, keep findings separate
+5. Look for keywords indicating same incident: specific dates, incident IDs, similar impact descriptions
+INPUT FINDINGS:
+ID: finding_1
+Title: SesameOp Backdoor Uses OpenAI API for Covert C2
+Summary: OpenAI API used in a backdoor attack for covert command and control communications.
+Risk Indicators: backdoor, C2 communications, misuse of OpenAI
+Source: brave_search (www.darkreading.com)
+Date: Tue Nov 04 2025 16:40:28 GMT+0100 (Mitteleuropäische Normalzeit)
+---
+ID: finding_2
+Title: Study: OpenAI Has Been Breached More Than 1000 Times
+Summary: OpenAI reportedly breached over 1,000 times, raising concerns about security protocols.
+Risk Indicators: breach, security protocols
+Source: brave_search (tech.co)
+Date: Thu Jun 12 2025 17:11:51 GMT+0200 (Mitteleuropäische Sommerzeit)
+---
+ID: finding_3
+Title: Breach Roundup: Hacker Claims 20 Million OpenAI Logins Taken
+Summary: Hacker claims to have stolen 20 million OpenAI logins, enabling malicious activities.
+Risk Indicators: hacker, logins taken, malicious code generation
+Source: brave_search (www.bankinfosecurity.com)
+Date: Unknown
+---
+ID: finding_4
+Title: Rouse - Data Privacy Violation: OpenAI/ChatGPT to pay a fine of 15 million euros
+Summary: OpenAI fined €15 million for data privacy violations related to ChatGPT.
+Risk Indicators: data privacy violation, fine
+Source: brave_search (rouse.com)
+Date: Unknown
+---
+ID: finding_5
+Title: Garante fines OpenAI €15M for GDPR non-compliance in ...
+Summary: OpenAI fined €15 million for GDPR non-compliance by Italian authorities.
+Risk Indicators: GDPR non-compliance, fine
+Source: brave_search (www.dataguidance.com)
+Date: Unknown
+---
+ID: finding_6
+Title: OpenAI Slammed with €15 Million Fine in Italy over ChatGPT Privacy Breaches! | AI News
+Summary: OpenAI fined €15 million in Italy for privacy breaches related to ChatGPT.
+Risk Indicators: privacy breaches, fine
+Source: brave_search (opentools.ai)
+Date: Mon Dec 23 2024 13:11:59 GMT+0100 (Mitteleuropäische Normalzeit)
+---
+ID: finding_7
+Title: Bug Bounty Program Program
+Summary: OpenAI has a vulnerability disclosure and bug bounty program.
+Risk Indicators: 
+Source: Vendor Trust Portal (trust.openai.com)
+Date: Thu Nov 27 2025 10:14:15 GMT+0100 (Mitteleuropäische Normalzeit)
+---
+ID: finding_8
+Title: Security Contact Program
+Summary: OpenAI provides dedicated security team contact information.
+Risk Indicators: 
+Source: Vendor Trust Portal (trust.openai.com)
+Date: Thu Nov 27 2025 10:14:15 GMT+0100 (Mitteleuropäische Normalzeit)
+---
+ID: finding_9
+Title: Incident Response Program
+Summary: OpenAI has security incident response procedures and team.
+Risk Indicators: 
+Source: Vendor Trust Portal (trust.openai.com)
+Date: Thu Nov 27 2025 10:14:15 GMT+0100 (Mitteleuropäische Normalzeit)
+---
+ID: finding_10
+Title: Penetration Testing Program
+Summary: OpenAI conducts regular penetration testing and security assessments.
+Risk Indicators: 
+Source: Vendor Trust Portal (trust.openai.com)
+Date: Thu Nov 27 2025 10:14:15 GMT+0100 (Mitteleuropäische Normalzeit)
+---
+ID: finding_11
+Title: OpenAI Loses Key Discovery Battle as It Cedes Ground to Authors in AI Lawsuits - The Hollywood Reporter
+Summary: OpenAI loses a key discovery battle in ongoing AI-related lawsuits.
+Risk Indicators: legal issues, lawsuits
+Source: Google News (news.google.com)
+Date: Wed Nov 26 2025 21:17:03 GMT+0100 (Mitteleuropäische Normalzeit)
+---
+ID: finding_12
+Title: OpenAI and Perplexity are launching AI shopping assistants, but competing startups aren't sweating it - TechCrunch
+Summary: OpenAI and Perplexity launch AI shopping assistants, facing competition.
+Risk Indicators: 
+Source: Google News (news.google.com)
+Date: Tue Nov 25 2025 20:35:06 GMT+0100 (Mitteleuropäische Normalzeit)
+---
+ID: finding_13
+Title: OpenAI Debuts ChatGPT Shopping Research Tool Ahead of the Holidays - Bloomberg.com
+Summary: OpenAI debuts a ChatGPT shopping research tool ahead of the holidays.
+Risk Indicators: 
+Source: Google News (news.google.com)
+Date: Mon Nov 24 2025 19:00:33 GMT+0100 (Mitteleuropäische Normalzeit)
+---
+ID: finding_14
+Title: SoftBank’s 40% Slide From Peak Shows Worry Over Giant OpenAI Bet - Bloomberg.com
+Summary: SoftBank's stock slide reflects concerns over its investment in OpenAI.
+Risk Indicators: 
+Source: Google News (news.google.com)
+Date: Wed Nov 26 2025 08:13:00 GMT+0100 (Mitteleuropäische Normalzeit)
+---
+ID: finding_15
+Title: OpenAI confirms major data breach, exposing names, emails and more - Windows Central
+Summary: OpenAI confirms a major data breach exposing personal information.
+Risk Indicators: data breach, exposed data
+Source: Google News (news.google.com)
+Date: Thu Nov 27 2025 08:58:43 GMT+0100 (Mitteleuropäische Normalzeit)
+---
+ID: finding_16
+Title: Data breach at OpenAI through analytics provider Mixpanel platform - SecurityBrief Australia
+Summary: Reports a confirmed data breach at OpenAI that occurred through their third-party analytics provider Mixpanel. This is an actual security incident affecting user data.
+Risk Indicators: data breach, security incident, third-party breach, Mixpanel
+Source: Google News (news.google.com)
+Date: Thu Nov 27 2025 07:50:00 GMT+0100 (Mitteleuropäische Normalzeit)
+---
+ID: finding_17
+Title: OpenAI projects 220 million paying ChatGPT users by 2030, The Information Reports - Reuters
+Summary: Business news about OpenAI's growth projections, forecasting 220 million paying ChatGPT users by 2030. This is positive business news with no risk implications.
+Risk Indicators: 
+Source: Google News (news.google.com)
+Date: Wed Nov 26 2025 03:42:00 GMT+0100 (Mitteleuropäische Normalzeit)
+---
+ID: finding_18
+Title: OpenAI reveals analytics data breach, notifies affected users
+Summary: Confirms OpenAI security incident involving Mixpanel that exposed limited user data from their API platform. OpenAI has notified affected users and attributes breach to third-party provider.
+Risk Indicators: data breach, security incident, user data exposure, third-party breach
+Source: brave_search (cybernews.com)
+Date: Thu Nov 27 2025 08:43:44 GMT+0100 (Mitteleuropäische Normalzeit)
+---
+ID: finding_19
+Title: OpenAI discloses Mixpanel 'security incident'; says no API data or credentials exposed
+Summary: OpenAI disclosed Mixpanel security incident to users via email. Company clarifies that only limited analytics-level data was exposed and no API credentials were compromised.
+Risk Indicators: security incident, data breach, analytics data exposure
+Source: brave_search (www.moneycontrol.com)
+Date: Thu Nov 27 2025 06:37:38 GMT+0100 (Mitteleuropäische Normalzeit)
+---
+ID: finding_20
+Title: OpenAI Data Breach: OpenAI API customer details, including user IDs, exposed in Mixpanel data breach
+Summary: Details the OpenAI/Mixpanel breach impact including exposed names, email addresses, and API metadata. Warns of potential phishing attacks and social engineering risks from the exposed data.
+Risk Indicators: data breach, user IDs exposed, email addresses exposed, phishing risk, social engineering
+Source: brave_search (indianexpress.com)
+Date: Thu Nov 27 2025 08:22:47 GMT+0100 (Mitteleuropäische Normalzeit)
+---
+ID: finding_21
+Title: OpenAI Mixpanel Security Incident Exposes Limited User Data
+Summary: Confirms OpenAI security incident through Mixpanel affecting API product frontend users. OpenAI clarifies the breach occurred in Mixpanel's systems, not OpenAI's infrastructure.
+Risk Indicators: security incident, user data exposure, third-party breach
+Source: brave_search (thecyberexpress.com)
+Date: Thu Nov 27 2025 07:06:36 GMT+0100 (Mitteleuropäische Normalzeit)
+---
+ID: finding_22
+Title: The OpenAI Mixpanel Security Incident Explained - DEV Community
+Summary: Technical explanation of the Mixpanel breach affecting OpenAI. Attacker gained unauthorized access to analytics environment and exported dataset containing metadata of OpenAI API users.
+Risk Indicators: unauthorized access, data export, security incident, metadata exposure
+Source: brave_search (dev.to)
+Date: Thu Nov 27 2025 07:57:02 GMT+0100 (Mitteleuropäische Normalzeit)
+---
+ID: finding_23
+Title: OpenAI Confirms Security Incident Involving Third-Party Analytics Provider Mixpanel - SSBCrack News
+Summary: Confirms OpenAI identified a security incident involving Mixpanel that led to exposure of specific user data linked to their API platform.
+Risk Indicators: security incident, user data exposure, third-party breach
+Source: brave_search (news.ssbcrack.com)
+Date: Thu Nov 27 2025 07:13:06 GMT+0100 (Mitteleuropäische Normalzeit)
+---
+ID: finding_24
+Title: ChatGPT maker OpenAI confirms major data breach, exposing user's names, email addresses, and more — "Transparency is important to us."
+Summary: Reports OpenAI data breach as 'major' with exposed user emails, names, and approximate locations. Notes this breach is more significant than previous incidents affecting the company.
+Risk Indicators: data breach, email exposure, names exposed, location data exposed
+Source: brave_search (www.windowscentral.com)
+Date: Thu Nov 27 2025 07:58:43 GMT+0100 (Mitteleuropäische Normalzeit)
+---
+ID: finding_25
+Title: OpenAI Security Rating, Vendor Risk Report, and Data Breaches
+Summary: This is a vendor risk assessment platform page (UpGuard) that provides security ratings and risk analysis for OpenAI. It is not reporting a specific incident but rather offering ongoing security monitoring services.
+Risk Indicators: 
+Source: brave_search (www.upguard.com)
+Date: Unknown
+---
+RESPOND WITH ONLY VALID JSON (no additional text):
+{
+  "incidentGroups": [
+    {
+      "incidentId": "incident_001",
+      "incidentType": "data_breach|outage|security_incident|compliance_violation|other",
+      "incidentDescription": "Brief consolidated description of the incident",
+      "primaryFindingId": "finding_X",
+      "supportingFindingIds": ["finding_Y", "finding_Z"],
+      "estimatedDate": "YYYY-MM-DD or null",
+      "confidence": 0.85
+    }
+  ],
+  "ungroupedFindings": ["finding_A", "finding_B"]
+}
+Focus on SEMANTIC SIMILARITY and INCIDENT CONTEXT, not just textual similarity.

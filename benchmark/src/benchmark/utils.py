@@ -5,19 +5,58 @@ from typing import Dict, Any, List
 import pandas as pd
 
 
-def load_models_config(config_path: str = "config/models.json") -> Dict[str, Any]:
+def load_models_config(config_path: str = "config/models.json", models_config_path: str = "config/models_config.json") -> Dict[str, Any]:
+    """
+    Load models configuration, optionally filtered by models_config.json.
+    
+    Args:
+        config_path: Path to the full models.json file
+        models_config_path: Path to models_config.json that specifies which models to use
+    
+    Returns:
+        Dict with filtered models configuration
+    """
     try:
+        # Load full models configuration
         with open(config_path, "r") as f:
-            return json.load(f)
+            full_config = json.load(f)
+        
+        # Try to load models filter config
+        try:
+            with open(models_config_path, "r") as f:
+                models_filter = json.load(f)
+            
+            # Extract model names to use
+            active_model_names = {model["name"] for model in models_filter["models"]}
+            
+            # Filter models based on models_config
+            filtered_models = [
+                model for model in full_config["models"] 
+                if model["name"] in active_model_names
+            ]
+            
+            if not filtered_models:
+                raise ValueError("No models found matching the models_config filter")
+            
+            return {"models": filtered_models}
+            
+        except FileNotFoundError:
+            # If models_config.json doesn't exist, return all models
+            print(f"⚠️  Models config file not found at {models_config_path}, using all models")
+            return full_config
+        except json.JSONDecodeError as e:
+            print(f"⚠️  Invalid JSON in models config: {e}, using all models")
+            return full_config
+            
     except FileNotFoundError:
         raise FileNotFoundError(f"Models configuration file not found at {config_path}")
     except json.JSONDecodeError as e:
         raise ValueError(f"Invalid JSON in models configuration: {e}")
 
 
-def load_pricing_data(models_config_path: str = "config/models.json") -> Dict[str, Dict[str, float]]:
+def load_pricing_data(models_config_path: str = "config/models.json", models_filter_path: str = "config/models_config.json") -> Dict[str, Dict[str, float]]:
     try:
-        models_config = load_models_config(models_config_path)
+        models_config = load_models_config(models_config_path, models_filter_path)
         pricing_data = {}
         
         for model in models_config["models"]:
@@ -36,11 +75,59 @@ def load_pricing_data(models_config_path: str = "config/models.json") -> Dict[st
 def load_prompts_config(prompts_path: str = "config/prompts.json") -> Dict[str, Any]:
     try:
         with open(prompts_path, "r") as f:
-            return json.load(f)
+            config = json.load(f)
+        
+        # Load prompt content from corresponding .txt files
+        prompts_dir = os.path.dirname(prompts_path)
+        prompts_txt_dir = os.path.join(prompts_dir, "prompts")
+        
+        for prompt in config["prompts"]:
+            prompt_name = prompt["name"]
+            txt_file_path = os.path.join(prompts_txt_dir, f"{prompt_name}.txt")
+            
+            try:
+                with open(txt_file_path, "r", encoding="utf-8") as f:
+                    prompt["prompt"] = f.read().strip()
+            except FileNotFoundError:
+                raise FileNotFoundError(f"Prompt text file not found: {txt_file_path}")
+            except Exception as e:
+                raise ValueError(f"Error reading prompt file {txt_file_path}: {e}")
+        
+        return config
     except FileNotFoundError:
         raise FileNotFoundError(f"Prompts configuration file not found at {prompts_path}")
     except json.JSONDecodeError as e:
         raise ValueError(f"Invalid JSON in prompts configuration: {e}")
+
+
+def load_prompt_from_file(prompt_file_path: str, prompt_name: str = None) -> Dict[str, Any]:
+    """
+    Load a prompt from a text file.
+    
+    Args:
+        prompt_file_path: Path to the .txt file containing the prompt
+        prompt_name: Optional name for the prompt (defaults to filename without extension)
+    
+    Returns:
+        Dict with prompt info in the same format as JSON config
+    """
+    try:
+        with open(prompt_file_path, "r", encoding="utf-8") as f:
+            prompt_content = f.read().strip()
+        
+        if not prompt_name:
+            # Extract filename without extension as prompt name
+            prompt_name = os.path.splitext(os.path.basename(prompt_file_path))[0]
+        
+        return {
+            "name": prompt_name,
+            "description": f"Prompt loaded from {prompt_file_path}",
+            "prompt": prompt_content
+        }
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Prompt file not found at {prompt_file_path}")
+    except Exception as e:
+        raise ValueError(f"Error reading prompt file {prompt_file_path}: {e}")
 
 
 def create_output_directory(base_path: str = "outputs") -> str:
