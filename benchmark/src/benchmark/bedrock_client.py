@@ -8,157 +8,75 @@ from botocore.exceptions import ClientError, BotoCoreError
 
 class BedrockClient:
     def __init__(self, region_name: str = "eu-central-1"):
-        self.region_name = region_name
-        self.client = boto3.client("bedrock-runtime", region_name=region_name)
+        self.default_region = region_name
+        self.region_name = region_name  # Keep for backward compatibility
+        self.clients = {}  # Cache for region-specific clients
+        self.client = self._get_client_for_region(region_name)
+    
+    def _get_client_for_region(self, region_name: str):
+        """Get or create a cached client for the specified region."""
+        if region_name not in self.clients:
+            self.clients[region_name] = boto3.client("bedrock-runtime", region_name=region_name)
+        return self.clients[region_name]
     
     async def invoke_model(
         self,
         model_id: str,
         prompt: str,
         max_tokens: int = 4096,
-        temperature: float = 0.7
+        temperature: float = 0.7,
+        region: Optional[str] = None
     ) -> Dict[str, Any]:
         start_time = time.time()
         
+        # Use specified region or default
+        target_region = region or self.default_region
+        client = self._get_client_for_region(target_region)
+        
         try:
-            # Prepare request body based on model provider
-            if "anthropic" in model_id:
-                body = {
-                    "anthropic_version": "bedrock-2023-05-31",
-                    "max_tokens": max_tokens,
-                    "messages": [{"role": "user", "content": prompt}],
-                    "temperature": temperature
-                }
-            elif "amazon" in model_id:
-                if "nova" in model_id:
-                    # Amazon Nova models use the messages format
-                    body = {
-                        "messages": [{"role": "user", "content": [{"text": prompt}]}],
-                        "inferenceConfig": {
-                            "maxTokens": max_tokens,
-                            "temperature": temperature,
-                            "topP": 0.9
-                        }
-                    }
-                else:
-                    # Amazon Titan models use the old format
-                    body = {
-                        "inputText": prompt,
-                        "textGenerationConfig": {
-                            "maxTokenCount": max_tokens,
-                            "temperature": temperature,
-                            "topP": 0.9
-                        }
-                    }
-            elif "meta" in model_id:
-                body = {
-                    "prompt": f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
-                    "max_gen_len": max_tokens,
-                    "temperature": temperature,
-                    "top_p": 0.9
-                }
-            elif "mistral" in model_id:
-                body = {
-                    "messages": [{"role": "user", "content": prompt}],
-                    "max_tokens": max_tokens,
-                    "temperature": temperature,
-                    "top_p": 0.9
-                }
-            elif "openai" in model_id:
-                body = {
-                    "messages": [{"role": "user", "content": prompt}],
-                    "max_tokens": max_tokens,
-                    "temperature": temperature
-                }
-            elif "qwen" in model_id:
-                body = {
-                    "messages": [{"role": "user", "content": prompt}],
-                    "max_tokens": max_tokens,
-                    "temperature": temperature,
-                    "top_p": 0.9
-                }
-            elif "cohere" in model_id:
-                body = {
-                    "query": prompt,
-                    "documents": [],
-                    "top_k": 10,
-                    "return_documents": False
-                }
-            else:
-                # Default format for other providers
-                body = {
-                    "prompt": prompt,
-                    "max_tokens": max_tokens,
-                    "temperature": temperature
-                }
+            # Prepare inference config based on model provider
+            inference_config = {
+                "maxTokens": max_tokens,
+                "temperature": temperature
+            }
             
-            # Make the API call
+            # Claude models don't support both temperature and topP
+            if "anthropic" not in model_id:
+                inference_config["topP"] = 0.9
+            
+            # Use Converse API for all models - unified interface with consistent token usage
             response = await asyncio.get_event_loop().run_in_executor(
                 None,
-                lambda: self.client.invoke_model(
+                lambda: client.converse(
                     modelId=model_id,
-                    body=json.dumps(body),
-                    contentType="application/json",
-                    accept="application/json"
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": [{"text": prompt}]
+                        }
+                    ],
+                    inferenceConfig=inference_config
                 )
             )
             
             response_time = time.time() - start_time
-            response_body = json.loads(response["body"].read())
             
-            # Parse response based on model provider
-            if "anthropic" in model_id:
-                content = response_body.get("content", [{}])[0].get("text", "")
-                input_tokens = response_body.get("usage", {}).get("input_tokens", 0)
-                output_tokens = response_body.get("usage", {}).get("output_tokens", 0)
-            elif "amazon" in model_id:
-                if "nova" in model_id:
-                    # Amazon Nova models use the messages format
-                    content = response_body.get("output", {}).get("message", {}).get("content", [{}])[0].get("text", "")
-                    usage = response_body.get("usage", {})
-                    input_tokens = usage.get("inputTokens", 0)
-                    output_tokens = usage.get("outputTokens", 0)
-                else:
-                    # Amazon Titan models use the old format
-                    results = response_body.get("results", [{}])
-                    content = results[0].get("outputText", "") if results else ""
-                    input_tokens = response_body.get("inputTextTokenCount", 0)
-                    output_tokens = results[0].get("tokenCount", 0) if results else 0
-            elif "meta" in model_id:
-                content = response_body.get("generation", "")
-                # Clean up any trailing special tokens
-                if content.endswith("<|eot_id|>"):
-                    content = content[:-10]
-                input_tokens = response_body.get("prompt_token_count", 0)
-                output_tokens = response_body.get("generation_token_count", 0)
-            elif "mistral" in model_id:
-                choices = response_body.get("choices", [{}])
-                content = choices[0].get("message", {}).get("content", "") if choices else ""
-                usage = response_body.get("usage", {})
-                input_tokens = usage.get("prompt_tokens", 0)
-                output_tokens = usage.get("completion_tokens", 0)
-            elif "openai" in model_id:
-                choices = response_body.get("choices", [{}])
-                content = choices[0].get("message", {}).get("content", "") if choices else ""
-                usage = response_body.get("usage", {})
-                input_tokens = usage.get("prompt_tokens", 0)
-                output_tokens = usage.get("completion_tokens", 0)
-            elif "qwen" in model_id:
-                content = response_body.get("output", {}).get("choices", [{}])[0].get("message", {}).get("content", "")
-                usage = response_body.get("usage", {})
-                input_tokens = usage.get("prompt_tokens", 0)
-                output_tokens = usage.get("completion_tokens", 0)
-            elif "cohere" in model_id:
-                # Cohere rerank returns relevance scores, not text generation
-                results = response_body.get("results", [])
-                content = f"Rerank results: {len(results)} documents processed"
-                input_tokens = response_body.get("meta", {}).get("api_version", {}).get("billed_units", {}).get("input_tokens", 0)
-                output_tokens = 0  # Rerank doesn't generate text
-            else:
-                # Default parsing
-                content = response_body.get("completion", response_body.get("text", ""))
-                input_tokens = response_body.get("input_tokens", len(prompt.split()) * 1.3)  # Rough estimate
-                output_tokens = response_body.get("output_tokens", len(content.split()) * 1.3)
+            # Extract content from unified Converse API response
+            content = ""
+            if "output" in response:
+                output = response["output"]
+                if "message" in output:
+                    message = output["message"]
+                    if "content" in message:
+                        content_blocks = message["content"]
+                        for block in content_blocks:
+                            if "text" in block:
+                                content += block["text"]
+            
+            # Extract token usage from unified Converse API response
+            usage_info = response.get("usage", {})
+            input_tokens = usage_info.get("inputTokens", 0)
+            output_tokens = usage_info.get("outputTokens", 0)
             
             return {
                 "success": True,

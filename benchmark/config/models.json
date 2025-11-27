@@ -151,6 +151,15 @@
       "temperature": 0.4,
       "input_cost_per_1k_tokens": 0.0008,
       "output_cost_per_1k_tokens": 0.0032
+    },
+    {
+      "name": "DeepSeek-R1",
+      "model_id": "us.deepseek.r1-v1:0",
+      "max_tokens": 4096,
+      "temperature": 0.4,
+      "input_cost_per_1k_tokens": 0.00135,
+      "output_cost_per_1k_tokens": 0.0054,
+      "region": "us-east-1"
     }
   ]
 }

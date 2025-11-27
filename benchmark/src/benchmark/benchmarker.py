@@ -25,6 +25,7 @@ class Benchmarker:
         model_id = model_config["model_id"]
         max_tokens = model_config.get("max_tokens", 4096)
         temperature = model_config.get("temperature", 0.7)
+        region = model_config.get("region")  # Extract region if specified
         
         print(f"Starting benchmark for {model_name} with {number_of_calls} calls...")
         
@@ -37,7 +38,8 @@ class Benchmarker:
                     model_id,
                     prompt,
                     max_tokens,
-                    temperature
+                    temperature,
+                    region
                 )
             )
             tasks.append(task)
@@ -117,13 +119,15 @@ class Benchmarker:
         model_id: str,
         prompt: str,
         max_tokens: int,
-        temperature: float
+        temperature: float,
+        region: Optional[str] = None
     ) -> Dict[str, Any]:
         result = await self.client.invoke_model(
             model_id=model_id,
             prompt=prompt,
             max_tokens=max_tokens,
-            temperature=temperature
+            temperature=temperature,
+            region=region
         )
         result["call_id"] = call_id
         return result
