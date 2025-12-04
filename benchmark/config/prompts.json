@@ -3,6 +3,10 @@
     {
       "name": "grouping_risk",
       "description": "Risk Findings Grouping"
+    },
+    {
+      "name": "tprm",
+      "description": "TPRM Assessment"
     }
   ]
 }

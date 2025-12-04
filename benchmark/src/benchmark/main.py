@@ -5,6 +5,13 @@ import os
 import sys
 from typing import Optional
 import click
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Set AWS credentials from environment
+os.getenv('AWS_BEARER_TOKEN_BEDROCK')
 
 import sys
 import os
