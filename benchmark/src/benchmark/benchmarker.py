@@ -4,12 +4,14 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 import statistics
 from bedrock_client import BedrockClient
+from openai_client import OpenAIClient
 from utils import load_models_config, load_pricing_data, load_prompts_config
 
 
 class Benchmarker:
     def __init__(self, region_name: str = "eu-central-1"):
-        self.client = BedrockClient(region_name)
+        self.bedrock_client = BedrockClient(region_name)
+        self.openai_client = OpenAIClient()
         self.models_config = load_models_config()
         self.pricing_data = load_pricing_data()
         self.prompts_config = load_prompts_config()
@@ -23,12 +25,13 @@ class Benchmarker:
     ) -> Dict[str, Any]:
         model_name = model_config["name"]
         model_id = model_config["model_id"]
-        max_tokens = model_config.get("max_tokens", 4096)
-        temperature = model_config.get("temperature", 0.7)
+        max_tokens = model_config.get("max_tokens")  # None if not specified
+        temperature = model_config.get("temperature")  # None if not specified
         region = model_config.get("region")  # Extract region if specified
-        
-        print(f"Starting benchmark for {model_name} with {number_of_calls} calls...")
-        
+        provider = model_config.get("provider", "bedrock")  # Default to bedrock for backward compatibility
+
+        print(f"Starting benchmark for {model_name} ({provider}) with {number_of_calls} calls...")
+
         # Create tasks for concurrent execution
         tasks = []
         for call_id in range(number_of_calls):
@@ -39,7 +42,8 @@ class Benchmarker:
                     prompt,
                     max_tokens,
                     temperature,
-                    region
+                    region,
+                    provider
                 )
             )
             tasks.append(task)
@@ -118,11 +122,23 @@ class Benchmarker:
         call_id: int,
         model_id: str,
         prompt: str,
-        max_tokens: int,
-        temperature: float,
-        region: Optional[str] = None
+        max_tokens: Optional[int],
+        temperature: Optional[float],
+        region: Optional[str] = None,
+        provider: str = "bedrock"
     ) -> Dict[str, Any]:
-        result = await self.client.invoke_model(
+        # Route to the appropriate client based on provider
+        if provider == "openai":
+            client = self.openai_client
+        else:
+            client = self.bedrock_client
+            # Bedrock requires max_tokens and temperature, provide defaults if not specified
+            if max_tokens is None:
+                max_tokens = 4096
+            if temperature is None:
+                temperature = 0.7
+
+        result = await client.invoke_model(
             model_id=model_id,
             prompt=prompt,
             max_tokens=max_tokens,
