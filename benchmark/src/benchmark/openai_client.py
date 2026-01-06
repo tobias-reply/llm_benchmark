@@ -1,6 +1,7 @@
 import asyncio
 import os
 import time
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 from openai import AsyncOpenAI
 from openai import APIError, APIConnectionError, RateLimitError, APITimeoutError
@@ -35,6 +36,7 @@ class OpenAIClient:
         region: Optional[str] = None  # Not used for OpenAI, kept for API compatibility
     ) -> Dict[str, Any]:
         start_time = time.time()
+        invocation_timestamp = datetime.now(timezone.utc).isoformat()
 
         try:
             # Build request parameters
@@ -60,6 +62,7 @@ class OpenAIClient:
             response = await self.client.chat.completions.create(**request_params)
 
             response_time = time.time() - start_time
+            response_timestamp = datetime.now(timezone.utc).isoformat()
 
             # Extract content from response
             content = ""
@@ -73,6 +76,8 @@ class OpenAIClient:
             return {
                 "success": True,
                 "response_time": response_time,
+                "invocation_timestamp": invocation_timestamp,
+                "response_timestamp": response_timestamp,
                 "response": content,
                 "input_tokens": int(input_tokens),
                 "output_tokens": int(output_tokens),
@@ -80,9 +85,12 @@ class OpenAIClient:
             }
 
         except RateLimitError as e:
+            error_timestamp = datetime.now(timezone.utc).isoformat()
             return {
                 "success": False,
                 "response_time": time.time() - start_time,
+                "invocation_timestamp": invocation_timestamp,
+                "response_timestamp": error_timestamp,
                 "response": "",
                 "input_tokens": 0,
                 "output_tokens": 0,
@@ -94,9 +102,12 @@ class OpenAIClient:
             }
 
         except APITimeoutError as e:
+            error_timestamp = datetime.now(timezone.utc).isoformat()
             return {
                 "success": False,
                 "response_time": time.time() - start_time,
+                "invocation_timestamp": invocation_timestamp,
+                "response_timestamp": error_timestamp,
                 "response": "",
                 "input_tokens": 0,
                 "output_tokens": 0,
@@ -108,9 +119,12 @@ class OpenAIClient:
             }
 
         except APIConnectionError as e:
+            error_timestamp = datetime.now(timezone.utc).isoformat()
             return {
                 "success": False,
                 "response_time": time.time() - start_time,
+                "invocation_timestamp": invocation_timestamp,
+                "response_timestamp": error_timestamp,
                 "response": "",
                 "input_tokens": 0,
                 "output_tokens": 0,
@@ -129,9 +143,12 @@ class OpenAIClient:
             elif "invalid" in str(e).lower() or "validation" in str(e).lower():
                 error_type = "validation_error"
 
+            error_timestamp = datetime.now(timezone.utc).isoformat()
             return {
                 "success": False,
                 "response_time": time.time() - start_time,
+                "invocation_timestamp": invocation_timestamp,
+                "response_timestamp": error_timestamp,
                 "response": "",
                 "input_tokens": 0,
                 "output_tokens": 0,
@@ -143,9 +160,12 @@ class OpenAIClient:
             }
 
         except Exception as e:
+            error_timestamp = datetime.now(timezone.utc).isoformat()
             return {
                 "success": False,
                 "response_time": time.time() - start_time,
+                "invocation_timestamp": invocation_timestamp,
+                "response_timestamp": error_timestamp,
                 "response": "",
                 "input_tokens": 0,
                 "output_tokens": 0,

@@ -9,12 +9,13 @@ from utils import load_models_config, load_pricing_data, load_prompts_config
 
 
 class Benchmarker:
-    def __init__(self, region_name: str = "eu-central-1"):
+    def __init__(self, region_name: str = "eu-central-1", temperature_override: Optional[float] = None):
         self.bedrock_client = BedrockClient(region_name)
         self.openai_client = OpenAIClient()
         self.models_config = load_models_config()
         self.pricing_data = load_pricing_data()
         self.prompts_config = load_prompts_config()
+        self.temperature_override = temperature_override
         
     async def benchmark_model(
         self,
@@ -26,7 +27,8 @@ class Benchmarker:
         model_name = model_config["name"]
         model_id = model_config["model_id"]
         max_tokens = model_config.get("max_tokens")  # None if not specified
-        temperature = model_config.get("temperature")  # None if not specified
+        # Use CLI temperature override if provided, otherwise use model config temperature
+        temperature = self.temperature_override if self.temperature_override is not None else model_config.get("temperature")
         region = model_config.get("region")  # Extract region if specified
         provider = model_config.get("provider", "bedrock")  # Default to bedrock for backward compatibility
 
@@ -89,6 +91,9 @@ class Benchmarker:
                     "call_id": i + 1,
                     "success": False,
                     "response_time": 0,
+                    "invocation_timestamp": None,
+                    "response_timestamp": None,
+                    "temperature": temperature,
                     "input_tokens": 0,
                     "output_tokens": 0,
                     "response": "",
@@ -103,6 +108,9 @@ class Benchmarker:
                     "call_id": i + 1,
                     "success": result["success"],
                     "response_time": result["response_time"],
+                    "invocation_timestamp": result.get("invocation_timestamp"),
+                    "response_timestamp": result.get("response_timestamp"),
+                    "temperature": temperature,
                     "input_tokens": result["input_tokens"],
                     "output_tokens": result["output_tokens"],
                     "response": result["response"],

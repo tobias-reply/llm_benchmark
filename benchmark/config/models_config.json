@@ -28,24 +28,6 @@
       "output_cost_per_1k_tokens": 0.075
     },
     {
-      "name": "Amazon-Titan-Text-G1-Large",
-      "model_id": "amazon.titan-text-lite-v1",
-      "provider": "bedrock",
-      "max_tokens": 4096,
-      "temperature": 0.4,
-      "input_cost_per_1k_tokens": 0.00075,
-      "output_cost_per_1k_tokens": 0.001
-    },
-    {
-      "name": "Amazon-Titan-Text-G1-Express",
-      "model_id": "amazon.titan-text-express-v1",
-      "provider": "bedrock",
-      "max_tokens": 4096,
-      "temperature": 0.4,
-      "input_cost_per_1k_tokens": 0.00075,
-      "output_cost_per_1k_tokens": 0.001
-    },
-    {
       "name": "Amazon-Nova-Pro",
       "model_id": "eu.amazon.nova-pro-v1:0",
       "provider": "bedrock",

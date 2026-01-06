@@ -61,12 +61,18 @@ from utils import (
     default="eu-central-1",
     help="AWS region for Bedrock (default: eu-central-1)"
 )
+@click.option(
+    "--temperature",
+    type=float,
+    help="Override temperature for all models (optional, uses model config if not provided)"
+)
 def main(
     specific_model: Optional[str],
     number_of_calls: int,
     prompt: Optional[str],
     specific_prompt: Optional[str],
-    region: str
+    region: str,
+    temperature: Optional[float]
 ):
     """
     AWS Bedrock LLM Benchmarking Framework
@@ -111,6 +117,7 @@ def main(
     print(f"   - Specific model: {specific_model or 'All models'}")
     print(f"   - Specific prompt: {specific_prompt or 'All prompts'}")
     print(f"   - Number of calls per model per prompt: {number_of_calls}")
+    print(f"   - Temperature: {temperature if temperature is not None else 'Using model config'}")
     print()
     
     # Run the benchmark
@@ -120,7 +127,8 @@ def main(
             number_of_calls=number_of_calls,
             specific_model=specific_model,
             specific_prompt=specific_prompt,
-            region=region
+            region=region,
+            temperature=temperature
         )
     )
 
@@ -130,11 +138,12 @@ async def run_benchmark_async(
     number_of_calls: int,
     specific_model: Optional[str],
     specific_prompt: Optional[str],
-    region: str
+    region: str,
+    temperature: Optional[float]
 ):
     try:
         # Initialize benchmarker
-        benchmarker = Benchmarker(region_name=region)
+        benchmarker = Benchmarker(region_name=region, temperature_override=temperature)
         
         # Create output directory
         output_dir = create_output_directory()
